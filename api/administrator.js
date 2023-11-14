@@ -2,6 +2,11 @@ const express = require("express");
 const router = express.Router();
 const administrator = require("../models/administrator");
 
+//Con urlencoded acepta los acentos de las letras
+const app = express();
+app.use(express.urlencoded({extended:true}));
+app.use(express.json());
+
 //password
 const bcrypt = require("bcrypt");
 //sign up

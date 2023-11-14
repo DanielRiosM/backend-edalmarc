@@ -2,6 +2,11 @@ const express = require("express");
 const router = express.Router();
 const inform = require("../models/inform");
 
+//Con urlencoded acepta los acentos de las letras
+const app = express();
+app.use(express.urlencoded({extended:true}));
+app.use(express.json());
+
 router.post("/createInform", (req, res) => {
   let fechaInicio = req.body.fechaInicio;
   let fechaFinal = req.body.fechaFinal;
