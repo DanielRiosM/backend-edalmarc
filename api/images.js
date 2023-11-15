@@ -37,8 +37,8 @@ router.post("/upload", upload.single("image"), async (req, res) => {
 //leer imagenes guardadas
 router.get("/readImage/:id", async (req, res) => {
   const id = req.params.id;
-  Image.find({id_mason: id}, (err, result) => {
-    console.log("")
+  Image.find({ id_mason: id }, (err, result) => {
+    console.log("");
     if (err) {
       res.send(err);
     }
@@ -51,9 +51,39 @@ router.get("/readImage/:id", async (req, res) => {
 });
 
 //ver imagenes
-router.get("/view", async (req, res) => {
-  const images = await Image.find().sort({ _id: -1 });
+router.get("/view/:id_mason", async (req, res) => {
+  try {
+    const id_mason = req.params.id_mason;
 
-  res.render("images", { images: images });
+    const images = await Image.find({ id_mason: id_mason });
+
+    if (images.length > 0) {
+      const imageDataArray = images.map((image) => ({
+        id: image._id,
+        contentType: image.image.contentType,
+        data: image.image.data.toString("base64"),
+      }));
+
+      res.json({
+        status: "SUCCESS",
+        message: "Images found",
+        data: imageDataArray,
+      });
+    } else {
+      res.status(404).json({
+        status: "ERROR",
+        message: "No images found for the given mason ID",
+        data: null,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: "ERROR",
+      message: "Internal Server Error",
+      data: null,
+    });
+  }
 });
+
 module.exports = router;

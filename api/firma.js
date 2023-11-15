@@ -29,6 +29,7 @@ router.post("/upload", upload.single("firma"), async (req, res) => {
     res.json({
       status: "SUCCESS",
       message: "Firma guardada",
+      data: result
       });
     });
   });
@@ -48,11 +49,40 @@ router.get("/read", async (req, res) => {
   });
 });
 
-//ver imagenes
-router.get("/view", async (req, res) => {
-  const firmas = await Firma.find().sort({ _id: -1 });
+//ver firmas
+router.get("/view/:id_mason", async (req, res) => {
+  try {
+    const id_mason = req.params.id_mason;
 
-  res.render("firmas", { firmas: firmas });
+    const firmas = await Firma.find({ id_mason: id_mason });
+
+    if (firmas.length > 0) {
+      const imageDataArray = firmas.map((firma) => ({
+        id: firma._id,
+        contentType: firma.firma.contentType,
+        data: firma.firma.data.toString("base64"),
+      }));
+
+      res.json({
+        status: "SUCCESS",
+        message: "Firmas found",
+        data: imageDataArray,
+      });
+    } else {
+      res.status(404).json({
+        status: "ERROR",
+        message: "No images found for the given mason ID",
+        data: null,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: "ERROR",
+      message: "Internal Server Error",
+      data: null,
+    });
+  }
 });
 
 module.exports = router;
